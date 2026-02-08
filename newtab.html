@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 10px;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .tag-section {
+            display: inline-block;
+            float: left;
+            margin-bottom: 40px;
+            border: 1px solid #ddd;
+            margin: 5px;
+            border-radius: 10px;
+            background: white;
+            padding: 12px;
+        }
+
+        .section-title {
+            padding: 0;
+            margin: 0px 0px 10px 0px;
+            font-size: 1.2rem;
+            color: #64748b;
+        }
+
+        .card-grid {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .bookmark-card {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .bookmark-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #334155;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="bookmark-list"></div>
+    <script src="main.js"></script>
+</body>
+</html>
