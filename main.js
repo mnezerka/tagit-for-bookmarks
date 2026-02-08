@@ -4,33 +4,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // We fetch the whole tree to ensure we don't miss characters like '['
     chrome.bookmarks.getTree((nodes) => {
-        const grouped = {};
+        const groups = {};
 
-        // Helper to crawl the tree
-        function findTagged(nodeList) {
+        function findTagged(nodeList, forcedTag) {
+
             nodeList.forEach(node => {
-                if (node.url && tagRegex.test(node.title)) {
-                    console.log(node.title);
 
-                    const match = node.title.match(tagRegex);
-                    const tagName = match[1]; // Normalize tag case
-                    const cleanTitle = node.title.replace(tagRegex, '').trim();
+                childrenForcedTag = null;
 
-                    if (!grouped[tagName]) grouped[tagName] = [];
-                    grouped[tagName].push({
+                if (forcedTag) {
+                    if (!groups[forcedTag]) groups[forcedTag] = [];
+                    groups[forcedTag].push({
                         url: node.url,
-                        title: cleanTitle || node.url
+                        title: node.title.trim() || node.url
                     });
                 }
-                if (node.children) findTagged(node.children);
+
+                const match = node.title.match(tagRegex);
+
+                // if node contains tag
+                //if (node.url && tagRegex.test(node.title)) {
+                if (tagRegex.test(node.title)) {
+
+                    const tagName = match[1];
+
+                    // remove tag from title
+                    const cleanTitle = node.title.replace(tagRegex, '').trim();
+
+                    // if node is folder, add all bookmars no matter if tagged
+                    if (!node.url) {
+                        childrenForcedTag = tagName
+                    } else {
+                        if (!groups[tagName]) groups[tagName] = [];
+                        groups[tagName].push({
+                            url: node.url,
+                            title: cleanTitle || node.url
+                        });
+                    }
+                }
+
+                if (node.children) findTagged(node.children, childrenForcedTag);
             });
         }
 
-        findTagged(nodes);
-        renderGroups(grouped);
+        findTagged(nodes, null);
+        renderGroups(groups);
     });
 
     function renderGroups(groups) {
+
         if (Object.keys(groups).length === 0) {
             listContainer.innerHTML = '<p style="text-align:center; color:#64748b;">No tagged bookmarks found. Try naming a bookmark "[Test] Site Name".</p>';
             return;

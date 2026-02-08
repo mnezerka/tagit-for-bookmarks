@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Bracket Bookmarks",
+  "name": "TagIt for Bookmarks",
   "version": "1.0",
   "description": "Displays tagged (in brackets) bookmarks on the new tab page.",
   "icons": {
