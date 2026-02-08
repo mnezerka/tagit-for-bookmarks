@@ -4,19 +4,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // We fetch the whole tree to ensure we don't miss characters like '['
     chrome.bookmarks.getTree((nodes) => {
+
         const groups = {};
 
-        function findTagged(nodeList, forcedTag) {
+        function findTagged(nodeList, forcedTag, level) {
 
             nodeList.forEach(node => {
 
                 childrenForcedTag = null;
 
                 if (forcedTag) {
-                    if (!groups[forcedTag]) groups[forcedTag] = [];
-                    groups[forcedTag].push({
+                    if (!groups[forcedTag]) groups[forcedTag] = {title: forcedTag, index: level + '.' + node.index, items: []};
+                    groups[forcedTag].items.push({
                         url: node.url,
-                        title: node.title.trim() || node.url
+                        title: node.title.trim() || node.url,
+                        index: node.index
                     });
                 }
 
@@ -35,21 +37,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!node.url) {
                         childrenForcedTag = tagName
                     } else {
-                        if (!groups[tagName]) groups[tagName] = [];
-                        groups[tagName].push({
+                        if (!groups[tagName]) groups[tagName] = {title: tagName, index: level + '.' + node.index, items: []};
+                        groups[tagName].items.push({
                             url: node.url,
-                            title: cleanTitle || node.url
+                            title: cleanTitle || node.url,
+                            index: node.index
                         });
                     }
                 }
 
-                if (node.children) findTagged(node.children, childrenForcedTag);
+                if (node.children) findTagged(node.children, childrenForcedTag, level + '.' + (node.index || '0'));
             });
         }
 
-        findTagged(nodes, null);
+        findTagged(nodes, null, 'r');
         renderGroups(groups);
     });
+
+    function sortItems(a, b) {
+        if (a.index !== b.index ) return a.index - b.index;
+        return a.title.localeCompare(b.title);
+    }
 
     function renderGroups(groups) {
 
@@ -59,11 +67,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         listContainer.innerHTML = '';
-        Object.keys(groups).sort().forEach(tag => {
+        Object.values(groups).sort(sortItems).forEach(group => {
             const section = document.createElement('section');
             section.className = 'tag-section';
 
-            let cardsHtml = groups[tag].map(bm => {
+            let cardsHtml = group.items.sort(sortItems).map(bm => {
                 const favicon = `https://www.google.com/s2/favicons?sz=64&domain=${new URL(bm.url).hostname}`;
                 return `
                     <a class="bookmark-card" href="${bm.url}">
@@ -74,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }).join('');
 
             section.innerHTML = `
-                <h2 class="section-title">${tag}</h2>
+                <h2 class="section-title">${group.title}</h2>
                 <div class="card-grid">${cardsHtml}</div>
             `;
             listContainer.appendChild(section);
