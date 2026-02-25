@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
             section.className = 'tag-section';
 
             let cardsHtml = group.items.sort(sortItems).map(bm => {
-                const favicon = `https://www.google.com/s2/favicons?sz=64&domain=${new URL(bm.url).hostname}`;
+                const favicon = bm.url ? `https://www.google.com/s2/favicons?sz=64&domain=${new URL(bm.url).hostname}` : `https://www.google.com/s2/favicons?sz=64&domain=www.google.chrome`;
                 return `
                     <a class="bookmark-card" href="${bm.url}">
                         <img src="${favicon}" class="icon" alt="">
